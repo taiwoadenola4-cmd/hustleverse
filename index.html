@@ -16,41 +16,50 @@ button { background: #ffcc00; color: black; border: none; padding: 15px 25px; fo
 <div class="box">
 <p>💰 Money: <b id="money">₦500</b></p>
 <p>🍲 Hunger: <b id="hunger">50</b> / 100</p>
+<p>⚡ Energy: <b id="energy">100</b> / 100</p>
 <p id="message">Press GO WORK to hustle!</p>
 </div>
 
-<button onclick="goWork()">💼 GO WORK (+₦2,000)</button>
-<br>
-<button onclick="eatFood()" style="background:#00ff88;">🍲 EAT (-₦1,000)</button>
+<button onclick="goWork()">💼 GO WORK (+₦2,000)</button><br>
+<button onclick="eatFood()" style="background:#00ff88;">🍲 EAT (-₦1,000)</button><br>
+<button onclick="sleep()" style="background:#00ccff;">😴 SLEEP (Energy Full)</button>
 
 <script>
-let myMoney = 500;
-let myHunger = 50;
+let myMoney = Number(localStorage.getItem("jato_money")) || 500;
+let myHunger = Number(localStorage.getItem("jato_hunger")) || 50;
+let myEnergy = Number(localStorage.getItem("jato_energy")) || 100;
 
+function save() {
+  localStorage.setItem("jato_money", myMoney);
+  localStorage.setItem("jato_hunger", myHunger);
+  localStorage.setItem("jato_energy", myEnergy);
+}
 function update() {
   document.getElementById("money").innerText = "₦" + myMoney;
   document.getElementById("hunger").innerText = myHunger;
+  document.getElementById("energy").innerText = myEnergy;
+  save();
 }
-
 function goWork() {
-  myMoney = myMoney + 2000;
-  myHunger = myHunger + 20;
-  if (myHunger > 100) { myHunger = 100; }
-  document.getElementById("message").innerText = "You work! Oga pay you ₦2,000! But you dey hungry now!";
+  if (myEnergy < 20) { document.getElementById("message").innerText = "You tire! Go SLEEP first!"; return; }
+  myMoney += 2000; myHunger += 20; myEnergy -= 20;
+  if (myHunger > 100) myHunger = 100;
+  document.getElementById("message").innerText = "You work! +₦2,000! Energy -20";
   update();
 }
-
 function eatFood() {
-  if (myMoney < 1000) {
-    document.getElementById("message").innerText = "You no get money to eat! Go work first!";
-    return;
-  }
-  myMoney = myMoney - 1000;
-  myHunger = myHunger - 40;
-  if (myHunger < 0) { myHunger = 0; }
-  document.getElementById("message").innerText = "You chop better food! Hunger don reduce!";
+  if (myMoney < 1000) { document.getElementById("message").innerText = "No money to eat! Go work!"; return; }
+  myMoney -= 1000; myHunger -= 40;
+  if (myHunger < 0) myHunger = 0;
+  document.getElementById("message").innerText = "You chop! Hunger don reduce!";
   update();
 }
+function sleep() {
+  myEnergy = 100;
+  document.getElementById("message").innerText = "You sleep well! Energy full!";
+  update();
+}
+update();
 </script>
 </body>
 </html>
