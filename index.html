@@ -5,52 +5,89 @@
 <style>
 body { background: #1a0033; color: white; text-align: center; font-family: sans-serif; padding: 20px; }
 h1 { color: #ffcc00; }
-button { background: #ffcc00; color: black; border: none; padding: 15px 25px; font-size: 18px; border-radius: 10px; margin: 5px; font-weight: bold; }
+button { background: #ffcc00; color: black; border: none; padding: 15px 25px; font-size: 18px; border-radius: 10px; margin: 5px; font-weight: bold; width: 90%; }
 .box { background: white; color: black; padding: 20px; border-radius: 15px; margin: 15px 0; }
+.shop { background: #2a0055; padding: 15px; border-radius: 15px; margin-top: 15px; }
 </style>
 </head>
 <body>
 <h1>🔥 HUSTLEVERSE 🔥</h1>
-<p>Welcome JATO!</p>
+<p>Welcome JATO! | Rank: <b id="rank">Street Boy</b></p>
 
 <div class="box">
 <p>💰 Money: <b id="money">₦500</b></p>
 <p>🍲 Hunger: <b id="hunger">50</b> / 100</p>
 <p>⚡ Energy: <b id="energy">100</b> / 100</p>
+<p>💼 Pay per Work: <b id="pay">₦2,000</b></p>
 <p id="message">Press GO WORK to hustle!</p>
 </div>
 
-<button onclick="goWork()">💼 GO WORK (+₦2,000)</button><br>
+<button onclick="goWork()">💼 GO WORK</button><br>
 <button onclick="eatFood()" style="background:#00ff88;">🍲 EAT (-₦1,000)</button><br>
-<button onclick="sleep()" style="background:#00ccff;">😴 SLEEP (Energy Full)</button>
+<button onclick="sleep()" style="background:#00ccff;">😴 SLEEP</button>
+
+<div class="shop">
+<h3>🛒 SHOP</h3>
+<p>Buy better tools, earn more per work!</p>
+<button onclick="buyPhone()" style="background:white;">📱 Buy Phone - ₦10,000<br><small>Pay becomes ₦4,000</small></button><br>
+<button onclick="buyKeke()" style="background:white;">🛺 Buy Keke - ₦50,000<br><small>Pay becomes ₦8,000</small></button>
+</div>
 
 <script>
 let myMoney = Number(localStorage.getItem("jato_money")) || 500;
 let myHunger = Number(localStorage.getItem("jato_hunger")) || 50;
 let myEnergy = Number(localStorage.getItem("jato_energy")) || 100;
+let myPay = Number(localStorage.getItem("jato_pay")) || 2000;
 
 function save() {
   localStorage.setItem("jato_money", myMoney);
   localStorage.setItem("jato_hunger", myHunger);
   localStorage.setItem("jato_energy", myEnergy);
+  localStorage.setItem("jato_pay", myPay);
+}
+function getRank() {
+  if (myMoney >= 50000) return "👑 BIG BOY";
+  if (myMoney >= 10000) return "🔥 HUSTLER";
+  return "🚶 Street Boy";
 }
 function update() {
   document.getElementById("money").innerText = "₦" + myMoney;
   document.getElementById("hunger").innerText = myHunger;
   document.getElementById("energy").innerText = myEnergy;
+  document.getElementById("pay").innerText = "₦" + myPay;
+  document.getElementById("rank").innerText = getRank();
   save();
 }
 function goWork() {
-  if (myEnergy < 20) { document.getElementById("message").innerText = "You tire! Go SLEEP first!"; return; }
-  myMoney += 2000; myHunger += 20; myEnergy -= 20;
+  if (myEnergy < 20) { document.getElementById("message").innerText = "You tire! Go SLEEP!"; return; }
+  myMoney += myPay; myHunger += 20; myEnergy -= 20;
   if (myHunger > 100) myHunger = 100;
-  document.getElementById("message").innerText = "You work! +₦2,000! Energy -20";
+  document.getElementById("message").innerText = "You work! +₦" + myPay;
   update();
 }
 function eatFood() {
-  if (myMoney < 1000) { document.getElementById("message").innerText = "No money to eat! Go work!"; return; }
+  if (myMoney < 1000) { document.getElementById("message").innerText = "No money! Go work!"; return; }
   myMoney -= 1000; myHunger -= 40;
   if (myHunger < 0) myHunger = 0;
-  document.getElementById("message").innerText = "You chop! Hunger don reduce!";
+  document.getElementById("message").innerText = "You chop! Hunger reduce!";
   update();
 }
+function sleep() { myEnergy = 100; document.getElementById("message").innerText = "You sleep! Energy full!"; update(); }
+function buyPhone() {
+  if (myMoney < 10000) { document.getElementById("message").innerText = "Phone na ₦10,000! You never reach!"; return; }
+  if (myPay >= 4000) { document.getElementById("message").innerText = "You don buy Phone already!"; return; }
+  myMoney -= 10000; myPay = 4000;
+  document.getElementById("message").innerText = "You buy Phone! Now you earn ₦4,000 per work!";
+  update();
+}
+function buyKeke() {
+  if (myMoney < 50000) { document.getElementById("message").innerText = "Keke na ₦50,000! Hustle more!"; return; }
+  if (myPay >= 8000) { document.getElementById("message").innerText = "You don buy Keke already!"; return; }
+  myMoney -= 50000; myPay = 8000;
+  document.getElementById("message").innerText = "You buy Keke! Omo, you be BIG BOY now! ₦8,000 per work!";
+  update();
+}
+update();
+</script>
+</body>
+</html>
