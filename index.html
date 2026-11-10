@@ -6,7 +6,17 @@
 <body>
 <h1>Hello JATO!</h1>
 <p>Welcome to HUSTLEVERSE</p>
-<p>Money: ₦500</p>
-<button>GO WORK</button>
+<p>Money: <span id="money">₦500</span></p>
+<button onclick="goWork()">GO WORK</button>
+<p id="message">Press GO WORK to hustle!</p>
+
+<script>
+let myMoney = 500;
+function goWork() {
+  myMoney = myMoney + 2000;
+  document.getElementById("money").innerText = "₦" + myMoney;
+  document.getElementById("message").innerText = "You work! Oga pay you ₦2,000! You now get ₦" + myMoney;
+}
+</script>
 </body>
 </html>
