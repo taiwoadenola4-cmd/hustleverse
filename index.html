@@ -1,104 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>HUSTLEVERSE - JATO</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HUSTLEVERSE - JATO RUNNER</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-body { background: #1a0033; color: white; text-align: center; font-family: sans-serif; padding: 20px; margin: 0; }
-h1 { color: #ffcc00; margin: 5px; }
-button { background: #ffcc00; color: black; border: none; padding: 15px 25px; font-size: 18px; border-radius: 10px; margin: 5px; font-weight: bold; width: 90%; cursor: pointer; transition: transform 0.1s; }
-button:active { transform: scale(0.96); }
-button:disabled { opacity: 0.5; cursor: not-allowed; }
-.box { background: white; color: black; padding: 20px; border-radius: 15px; margin: 15px 0; }
-.shop { background: #2a0055; padding: 15px; border-radius: 15px; margin-top: 15px; }
-.char { font-size: 90px; line-height: 1; margin: 5px; transition: transform 0.3s; }
-.char.working { transform: scale(1.2) rotate(5deg); }
-.bar { background: #ddd; height: 12px; border-radius: 10px; overflow: hidden; margin: 5px 0; }
-.fill { height: 100%; transition: width 0.5s; }
-.garage { font-size: 20px; background: #2a0055; padding: 10px; border-radius: 15px; margin-top: 10px; }
-#winScreen, #loseScreen { display: none; background: #ffcc00; color: black; padding: 30px; border-radius: 20px; margin: 20px 0; animation: pop 0.5s; }
-#loseScreen { background: #ff3333; color: white; }
-@keyframes pop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-#toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #00ff88; color: black; padding: 12px 20px; border-radius: 20px; font-weight: bold; display: none; z-index: 999; }
-.progress-box { background: #2a0055; padding: 12px; border-radius: 12px; margin-top: 10px; }
+body { background: #1a0033; color: white; text-align: center; font-family: sans-serif; margin: 0; padding: 10px; }
+h1 { color: #ffcc00; margin: 5px; font-size: 24px; }
+#gameBox { background: #87CEEB; border-radius: 15px; overflow: hidden; position: relative; width: 100%; max-width: 500px; height: 300px; margin: 10px auto; border: 3px solid #ffcc00; }
+canvas { width: 100%; height: 100%; display: block; }
+button { background: #ffcc00; color: black; border: none; padding: 15px 10px; font-size: 18px; border-radius: 10px; margin: 5px; font-weight: bold; width: 30%; }
+.controls { display: flex; justify-content: center; max-width: 500px; margin: auto; }
+.box { background: white; color: black; padding: 15px; border-radius: 15px; margin: 10px auto; max-width: 500px; }
+.shop { background: #2a0055; padding: 15px; border-radius: 15px; max-width: 500px; margin: auto; }
+.shop button { width: 90%; background: white; }
 </style>
 </head>
 <body>
-<div id="toast"></div>
-<h1>🔥 HUSTLEVERSE 🔥</h1>
-<p>Welcome JATO! | Rank: <b id="rank">Street Boy</b> | 🔥 Streak: <b id="streak">0</b> days</p>
+<h1>🔥 HUSTLEVERSE - JATO RUNNER 🔥</h1>
+<p>Rank: <b id="rank">Street Boy</b> | 💰 Money: <b id="money">₦500</b> | 🏆 Score: <b id="score">0</b></p>
+<p id="message">Use ◀ ▶ to run, ⬆ to jump. Collect 💰, avoid 🕳️!</p>
 
-<div id="winScreen">
-<h1>👑 YOU WIN! 👑</h1>
-<p>You bought the Mansion! You are now a BILLIONAIRE!</p>
-<p>Final Money: <b id="winMoney"></b></p>
-<button onclick="resetGame()">🔄 PLAY AGAIN</button>
+<div id="gameBox">
+<canvas id="game" width="500" height="300"></canvas>
 </div>
 
-<div id="loseScreen">
-<h1>💀 GAME OVER 💀</h1>
-<p>You were too hungry and too tired. You collapsed on the street.</p>
-<p>Do not let Hunger stay at 100 and Energy go to 0.</p>
-<button onclick="resetGame()">🔄 TRY AGAIN</button>
-</div>
-
-<div id="gameArea">
-<div class="char" id="char">🚶</div>
-<p id="charText">Street Boy is walking...</p>
-<div class="garage">🏠 My Garage: <span id="garage">Nothing yet</span></div>
-
-<div class="progress-box">
-<p id="nextGoal">Next Goal: Phone - ₦10,000</p>
-<div class="bar"><div class="fill" id="progressBar" style="width:0%; background:#ffcc00;"></div></div>
-<p id="progressText">0% to next item</p>
+<div class="controls">
+<button onclick="moveLeft()">◀ LEFT</button>
+<button onclick="jump()">⬆ JUMP</button>
+<button onclick="moveRight()">RIGHT ▶</button>
 </div>
 
 <div class="box">
-<p>💰 Money: <b id="money">₦500</b></p>
-<p>🍲 Hunger: <b id="hunger">50</b> / 100</p>
-<div class="bar"><div class="fill" id="hungerBar" style="width:50%; background:#ff8800;"></div></div>
-<p>⚡ Energy: <b id="energy">100</b> / 100</p>
-<div class="bar"><div class="fill" id="energyBar" style="width:100%; background:#00ccff;"></div></div>
-<p>💼 Pay per Work: <b id="pay">₦2,000</b></p>
-<p id="message">Press GO WORK to hustle!</p>
+<p>💼 Pay per Work: <b id="pay">₦2,000</b> | 🍲 Hunger: <b id="hunger">50</b> | ⚡ Energy: <b id="energy">100</b></p>
+<p>Tip: Every 💰 you collect = +₦500. Every 🕳️ you hit = -10 Energy.</p>
+<button onclick="eatFood()" style="background:#00ff88; width:45%;">🍲 EAT (-₦1,000)</button>
+<button onclick="sleep()" style="background:#00ccff; width:45%;">😴 SLEEP</button>
 </div>
-
-<button id="workBtn" onclick="goWork()">💼 GO WORK</button><br>
-<button onclick="eatFood()" style="background:#00ff88;">🍲 EAT (-₦1,000)</button><br>
-<button onclick="sleep()" style="background:#00ccff;">😴 SLEEP</button><br>
-<button onclick="luckySpin()" style="background:#ff00ff; color:white;">🎰 LUCKY SPIN (Free!)</button><br>
-<button onclick="dailyBonus()" style="background:#00ff88;">🎁 DAILY BONUS (+₦5,000)</button>
 
 <div class="shop">
 <h3>🛒 SHOP</h3>
-<p>Buy better tools, earn more!</p>
-<button id="btn-Phone" onclick="buyItem('Phone',10000,4000,'📱')" style="background:white;">📱 Phone - ₦10,000<br><small>Pay: ₦4,000</small></button><br>
-<button id="btn-Keke" onclick="buyItem('Keke',50000,8000,'🛺')" style="background:white;">🛺 Keke - ₦50,000<br><small>Pay: ₦8,000</small></button><br>
-<button id="btn-Car" onclick="buyItem('Car',150000,20000,'🚗')" style="background:white;">🚗 Car - ₦150,000<br><small>Pay: ₦20,000</small></button><br>
-<button id="btn-House" onclick="buyItem('House',500000,50000,'🏠')" style="background:white;">🏠 House - ₦500,000<br><small>Pay: ₦50,000</small></button><br>
-<button id="btn-Mansion" onclick="buyItem('Mansion',2000000,150000,'👑')" style="background:#ffcc00;">👑 Mansion - ₦2,000,000<br><small>Pay: ₦150,000 - FINAL BOSS!</small></button>
-</div>
-<button onclick="resetGame()" style="background:#555; color:white; margin-top:15px;">🔄 RESET GAME</button>
-<p style="opacity:0.6; font-size:12px;">Tip: Eat when Hunger is above 80. Sleep when Energy is below 30.</p>
+<button onclick="buyItem('Phone',10000,4000,'📱')">📱 Phone - ₦10,000 | Pay: ₦4,000</button>
+<button onclick="buyItem('Keke',50000,8000,'🛺')">🛺 Keke - ₦50,000 | Pay: ₦8,000</button>
+<button onclick="buyItem('Car',150000,20000,'🚗')">🚗 Car - ₦150,000 | Pay: ₦20,000</button>
+<button onclick="buyItem('House',500000,50000,'🏠')">🏠 House - ₦500,000 | Pay: ₦50,000</button>
+<button onclick="buyItem('Mansion',2000000,150000,'👑')">👑 Mansion - ₦2,000,000 | Pay: ₦150,000</button>
+<p>🏠 Garage: <span id="garage">Nothing yet</span></p>
+<button onclick="resetGame()" style="background:#555; color:white;">🔄 RESET</button>
 </div>
 
 <script>
+let canvas = document.getElementById("game");
+let ctx = canvas.getContext("2d");
 let myMoney = Number(localStorage.getItem("jato_money")) || 500;
 let myHunger = Number(localStorage.getItem("jato_hunger")) || 50;
 let myEnergy = Number(localStorage.getItem("jato_energy")) || 100;
 let myPay = Number(localStorage.getItem("jato_pay")) || 2000;
 let myGarage = localStorage.getItem("jato_garage") || "";
-let myStreak = Number(localStorage.getItem("jato_streak")) || 0;
-let lastBonus = localStorage.getItem("jato_bonus") || "";
+let score = 0;
 
-if (myGarage === "" && myPay >= 4000) {
-  myGarage = "";
-  if (myPay >= 4000) myGarage += " 📱 Phone";
-  if (myPay >= 8000) myGarage += " 🛺 Keke";
-  if (myPay >= 20000) myGarage += " 🚗 Car";
-  if (myPay >= 50000) myGarage += " 🏠 House";
-  if (myPay >= 150000) myGarage += " 👑 Mansion";
-}
+// Player - this is Jato, he moves
+let player = { x: 50, y: 210, w: 40, h: 50, vy: 0, jumping: false, frame: 0, dir: 1 };
+let coins = [];
+let holes = [];
+let groundY = 260;
 
 function save() {
   localStorage.setItem("jato_money", myMoney);
@@ -106,25 +70,6 @@ function save() {
   localStorage.setItem("jato_energy", myEnergy);
   localStorage.setItem("jato_pay", myPay);
   localStorage.setItem("jato_garage", myGarage);
-  localStorage.setItem("jato_streak", myStreak);
-  localStorage.setItem("jato_bonus", lastBonus);
-}
-function playSound(freq, duration) {
-  try {
-    let ctx = new (window.AudioContext || window.webkitAudioContext)();
-    let osc = ctx.createOscillator();
-    let gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.value = freq; osc.type = "sine";
-    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-    osc.start(); osc.stop(ctx.currentTime + duration);
-  } catch(e) {}
-}
-function showToast(text) {
-  let t = document.getElementById("toast");
-  t.innerText = text; t.style.display = "block";
-  setTimeout(() => { t.style.display = "none"; }, 2500);
 }
 function getRank() {
   if (myMoney >= 2000000) return "👑 BILLIONAIRE";
@@ -134,137 +79,107 @@ function getRank() {
   if (myMoney >= 10000) return "🔥 HUSTLER";
   return "🚶 Street Boy";
 }
-function getNextGoal() {
-  if (myPay < 4000) return { name: "Phone", cost: 10000 };
-  if (myPay < 8000) return { name: "Keke", cost: 50000 };
-  if (myPay < 20000) return { name: "Car", cost: 150000 };
-  if (myPay < 50000) return { name: "House", cost: 500000 };
-  if (myPay < 150000) return { name: "Mansion", cost: 2000000 };
-  return null;
-}
-function updateChar() {
-  let char = "🚶"; let text = "Street Boy is walking...";
-  if (myPay >= 150000) { char = "👑"; text = "BILLIONAIRE! Everyone is hailing you!"; }
-  else if (myPay >= 50000) { char = "🏠"; text = "Landlord! You have made it!"; }
-  else if (myPay >= 20000) { char = "🚗"; text = "Big Man is cruising!"; }
-  else if (myPay >= 8000) { char = "🛺"; text = "Keke rider! Hustler on wheels!"; }
-  else if (myPay >= 4000) { char = "😎"; text = "Hustler with Phone! Sharp guy!"; }
-  if (myEnergy < 20) { char = "😴"; text = "You are tired... Go to SLEEP!"; }
-  else if (myHunger >= 90) { char = "🤤"; text = "Hunger is killing you! Go and EAT!"; }
-  document.getElementById("char").innerText = char;
-  document.getElementById("charText").innerText = text;
-  document.getElementById("garage").innerText = myGarage || "Nothing yet";
-  document.getElementById("hungerBar").style.width = myHunger + "%";
-  document.getElementById("energyBar").style.width = myEnergy + "%";
-  document.getElementById("streak").innerText = myStreak;
-
-  let goal = getNextGoal();
-  if (goal) {
-    let pct = Math.min(100, Math.floor((myMoney / goal.cost) * 100));
-    document.getElementById("nextGoal").innerText = "Next Goal: " + goal.name + " - ₦" + goal.cost.toLocaleString();
-    document.getElementById("progressBar").style.width = pct + "%";
-    document.getElementById("progressText").innerText = pct + "% to next item";
-  } else {
-    document.getElementById("nextGoal").innerText = "You own everything!";
-    document.getElementById("progressBar").style.width = "100%";
-    document.getElementById("progressText").innerText = "100% - You are a Billionaire!";
-  }
-  // Disable shop buttons you cannot afford
-  const prices = { "Phone": 10000, "Keke": 50000, "Car": 150000, "House": 500000, "Mansion": 2000000 };
-  for (let name in prices) {
-    let btn = document.getElementById("btn-" + name);
-    if (btn) {
-      if (myGarage.includes(name)) { btn.innerText = "✅ OWNED - " + name; btn.disabled = true; }
-      else { btn.disabled = myMoney < prices[name]; }
-    }
-  }
-}
-function checkEnd() {
-  if (myPay >= 150000 && myGarage.includes("Mansion")) {
-    document.getElementById("gameArea").style.display = "none";
-    document.getElementById("winScreen").style.display = "block";
-    document.getElementById("winMoney").innerText = "₦" + myMoney.toLocaleString();
-    playSound(880, 0.8);
-    return true;
-  }
-  if (myHunger >= 100 && myEnergy <= 0) {
-    document.getElementById("gameArea").style.display = "none";
-    document.getElementById("loseScreen").style.display = "block";
-    playSound(150, 0.8);
-    return true;
-  }
-  return false;
-}
-function update() {
+function updateUI() {
   document.getElementById("money").innerText = "₦" + myMoney.toLocaleString();
   document.getElementById("hunger").innerText = myHunger;
   document.getElementById("energy").innerText = myEnergy;
   document.getElementById("pay").innerText = "₦" + myPay.toLocaleString();
   document.getElementById("rank").innerText = getRank();
-  updateChar();
+  document.getElementById("garage").innerText = myGarage || "Nothing yet";
+  document.getElementById("score").innerText = score;
   save();
-  checkEnd();
 }
-function goWork() {
-  if (myEnergy < 20) { document.getElementById("message").innerText = "You are tired! Go to SLEEP!"; return; }
-  if (myHunger >= 100) { document.getElementById("message").innerText = "You are too hungry! Eat first!"; return; }
-  let btn = document.getElementById("workBtn");
-  btn.disabled = true; setTimeout(() => btn.disabled = false, 600);
-  let charEl = document.getElementById("char");
-  charEl.classList.add("working"); setTimeout(() => charEl.classList.remove("working"), 300);
-  myMoney += myPay; myHunger += 20; myEnergy -= 20;
-  if (myHunger > 100) myHunger = 100;
-  if (myEnergy < 0) myEnergy = 0;
-  document.getElementById("message").innerText = "You worked! +₦" + myPay.toLocaleString();
-  playSound(520, 0.2);
-  update();
+function moveLeft() { player.x -= 25; player.dir = -1; if (player.x < 0) player.x = 0; }
+function moveRight() { player.x += 25; player.dir = 1; if (player.x > 450) player.x = 450; }
+function jump() {
+  if (!player.jumping) { player.vy = -14; player.jumping = true; }
+}
+// Touch and keyboard controls
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") moveLeft();
+  if (e.key === "ArrowRight") moveRight();
+  if (e.key === "ArrowUp" || e.key === " ") jump();
+});
+function spawn() {
+  if (Math.random() < 0.03) coins.push({ x: 500, y: 180 + Math.random() * 60 });
+  if (Math.random() < 0.015) holes.push({ x: 500, w: 40 });
+}
+function draw() {
+  // Sky
+  ctx.fillStyle = "#87CEEB"; ctx.fillRect(0, 0, 500, 300);
+  // Sun
+  ctx.fillStyle = "#ffcc00"; ctx.beginPath(); ctx.arc(450, 40, 25, 0, Math.PI * 2); ctx.fill();
+  // Buildings
+  ctx.fillStyle = "#666"; ctx.fillRect(0, 120, 80, 140); ctx.fillRect(100, 100, 80, 160); ctx.fillRect(320, 130, 80, 130);
+  // Road
+  ctx.fillStyle = "#333"; ctx.fillRect(0, groundY, 500, 40);
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 278, 500, 4);
+  // Holes
+  holes.forEach(h => {
+    ctx.fillStyle = "#000"; ctx.beginPath(); ctx.ellipse(h.x + 20, groundY + 5, 22, 8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.font = "20px Arial"; ctx.fillText("🕳️", h.x + 10, groundY + 8);
+  });
+  // Coins
+  coins.forEach(c => {
+    ctx.font = "30px Arial"; ctx.fillText("💰", c.x, c.y);
+  });
+  // Player - Jato with legs animation
+  player.frame += 0.2;
+  let legOffset = Math.sin(player.frame) * 5;
+  ctx.font = "45px Arial";
+  // Body
+  ctx.fillStyle = "#ffcc00"; ctx.fillRect(player.x + 5, player.y + 10, 30, 30);
+  // Head
+  ctx.fillText(player.dir === 1 ? "🏃" : "🏃", player.x, player.y + 35);
+  // Name
+  ctx.fillStyle = "white"; ctx.font = "bold 12px Arial"; ctx.fillText("JATO", player.x + 2, player.y - 5);
+}
+
+function gameLoop() {
+  // Gravity
+  player.y += player.vy;
+  player.vy += 0.8;
+  if (player.y >= 210) { player.y = 210; player.vy = 0; player.jumping = false; }
+  spawn();
+  // Move coins and holes to the left - world moves
+  coins.forEach(c => c.x -= 3);
+  holes.forEach(h => h.x -= 3);
+  coins = coins.filter(c => c.x > -30);
+  holes = holes.filter(h => h.x > -50);
+  // Check coin collection
+  coins = coins.filter(c => {
+    let hit = Math.abs(c.x - player.x) < 30 && Math.abs(c.y - (player.y + 20)) < 40;
+    if (hit) { myMoney += 500; score += 1; document.getElementById("message").innerText = "You collected money! +₦500"; }
+    return !hit;
+  });
+  // Check hole hit
+  holes.forEach(h => {
+    if (Math.abs(h.x - player.x) < 25 && player.y >= 210) {
+      myEnergy -= 10; myHunger += 5;
+      document.getElementById("message").innerText = "Ouch! You fell in a pothole! -10 Energy";
+      h.x = -100; // remove hole
+      if (myEnergy <= 0) { myEnergy = 0; document.getElementById("message").innerText = "You are tired! Press SLEEP!"; }
+    }
+  });
+  draw();
+  updateUI();
+  requestAnimationFrame(gameLoop);
 }
 function eatFood() {
-  if (myMoney < 1000) { document.getElementById("message").innerText = "No money! Go and work!"; return; }
-  myMoney -= 1000; myHunger -= 40;
-  if (myHunger < 0) myHunger = 0;
-  document.getElementById("message").innerText = "You ate! Hunger reduced!";
-  playSound(400, 0.2);
-  update();
+  if (myMoney < 1000) { document.getElementById("message").innerText = "No money! Collect coins!"; return; }
+  myMoney -= 1000; myHunger -= 40; if (myHunger < 0) myHunger = 0;
+  document.getElementById("message").innerText = "You ate! Hunger reduced!"; updateUI();
 }
-function sleep() {
-  myEnergy = 100; myStreak += 1;
-  document.getElementById("message").innerText = "You slept! Energy is full! Streak +1";
-  playSound(300, 0.3);
-  update();
-}
-function luckySpin() {
-  let win = Math.floor(Math.random() * 10000);
-  myMoney += win;
-  document.getElementById("message").innerText = "🎰 LUCKY SPIN! You won ₦" + win.toLocaleString() + "!";
-  playSound(700, 0.3);
-  update();
-}
-function dailyBonus() {
-  let today = new Date().toDateString();
-  if (lastBonus === today) { showToast("You already claimed your Daily Bonus today. Come back tomorrow!"); return; }
-  lastBonus = today; myMoney += 5000; myStreak += 1;
-  showToast("🎁 Daily Bonus! +₦5,000");
-  playSound(880, 0.4);
-  update();
-}
+function sleep() { myEnergy = 100; document.getElementById("message").innerText = "You slept! Energy is full!"; updateUI(); }
 function buyItem(name, cost, newPay, emoji) {
   if (myPay >= newPay) { document.getElementById("message").innerText = "You already bought " + name + "!"; return; }
-  if (myMoney < cost) { document.getElementById("message").innerText = name + " is ₦" + cost.toLocaleString() + "! Hustle more!"; return; }
-  let oldRank = getRank();
-  myMoney -= cost; myPay = newPay;
-  myGarage = myGarage + " " + emoji + " " + name;
-  document.getElementById("message").innerText = "You bought " + name + "! Now you earn ₦" + newPay.toLocaleString() + " per work!";
-  playSound(900, 0.5);
-  showToast("🎉 You bought " + name + "!");
-  update();
-  if (getRank() !== oldRank) { showToast("⬆️ LEVEL UP! You are now " + getRank()); }
+  if (myMoney < cost) { document.getElementById("message").innerText = name + " is ₦" + cost.toLocaleString() + "! Collect more coins!"; return; }
+  myMoney -= cost; myPay = newPay; myGarage += " " + emoji + " " + name;
+  document.getElementById("message").innerText = "You bought " + name + "!"; updateUI();
 }
-function resetGame() {
-  localStorage.clear();
-  location.reload();
-}
-update();
+function resetGame() { localStorage.clear(); location.reload(); }
+updateUI();
+gameLoop();
 </script>
 </body>
 </html>
