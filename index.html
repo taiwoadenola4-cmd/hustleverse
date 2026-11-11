@@ -1,28 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>HUSTLEVERSE - JATO RUNNER</title>
+<title>HUSTLEVERSE - LAGOS RUNNER</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-body { background: #1a0033; color: white; text-align: center; font-family: sans-serif; margin: 0; padding: 10px; }
-h1 { color: #ffcc00; margin: 5px; font-size: 24px; }
-#gameBox { background: #87CEEB; border-radius: 15px; overflow: hidden; position: relative; width: 100%; max-width: 500px; height: 300px; margin: 10px auto; border: 3px solid #ffcc00; }
+body { background: #0a0a0a; color: white; text-align: center; font-family: sans-serif; margin: 0; padding: 10px; }
+h1 { color: #ffcc00; margin: 5px; font-size: 22px; }
+#gameBox { background: #87CEEB; border-radius: 15px; overflow: hidden; width: 100%; max-width: 520px; height: 320px; margin: 10px auto; border: 3px solid #ffcc00; position: relative; }
 canvas { width: 100%; height: 100%; display: block; }
-button { background: #ffcc00; color: black; border: none; padding: 15px 10px; font-size: 18px; border-radius: 10px; margin: 5px; font-weight: bold; width: 30%; }
-.controls { display: flex; justify-content: center; max-width: 500px; margin: auto; }
-.box { background: white; color: black; padding: 15px; border-radius: 15px; margin: 10px auto; max-width: 500px; }
-.shop { background: #2a0055; padding: 15px; border-radius: 15px; max-width: 500px; margin: auto; }
+button { background: #ffcc00; color: black; border: none; padding: 14px 10px; font-size: 17px; border-radius: 10px; margin: 5px; font-weight: bold; width: 30%; }
+.controls { display: flex; justify-content: center; max-width: 520px; margin: auto; }
+.box { background: white; color: black; padding: 14px; border-radius: 15px; margin: 10px auto; max-width: 520px; }
+.shop { background: #2a0055; padding: 15px; border-radius: 15px; max-width: 520px; margin: auto; }
 .shop button { width: 90%; background: white; }
 </style>
 </head>
 <body>
-<h1>🔥 HUSTLEVERSE - JATO RUNNER 🔥</h1>
+<h1>🔥 HUSTLEVERSE - LAGOS RUNNER 🔥</h1>
 <p>Rank: <b id="rank">Street Boy</b> | 💰 Money: <b id="money">₦500</b> | 🏆 Score: <b id="score">0</b></p>
-<p id="message">Use ◀ ▶ to run, ⬆ to jump. Collect 💰, avoid 🕳️!</p>
+<p id="message">Run, jump, collect money. Avoid potholes and cars!</p>
 
-<div id="gameBox">
-<canvas id="game" width="500" height="300"></canvas>
-</div>
+<div id="gameBox"><canvas id="game" width="520" height="320"></canvas></div>
 
 <div class="controls">
 <button onclick="moveLeft()">◀ LEFT</button>
@@ -31,8 +29,7 @@ button { background: #ffcc00; color: black; border: none; padding: 15px 10px; fo
 </div>
 
 <div class="box">
-<p>💼 Pay per Work: <b id="pay">₦2,000</b> | 🍲 Hunger: <b id="hunger">50</b> | ⚡ Energy: <b id="energy">100</b></p>
-<p>Tip: Every 💰 you collect = +₦500. Every 🕳️ you hit = -10 Energy.</p>
+<p>💼 Pay: <b id="pay">₦2,000</b> | 🍲 Hunger: <b id="hunger">50</b> | ⚡ Energy: <b id="energy">100</b></p>
 <button onclick="eatFood()" style="background:#00ff88; width:45%;">🍲 EAT (-₦1,000)</button>
 <button onclick="sleep()" style="background:#00ccff; width:45%;">😴 SLEEP</button>
 </div>
@@ -57,12 +54,11 @@ let myEnergy = Number(localStorage.getItem("jato_energy")) || 100;
 let myPay = Number(localStorage.getItem("jato_pay")) || 2000;
 let myGarage = localStorage.getItem("jato_garage") || "";
 let score = 0;
+let time = 0;
 
-// Player - this is Jato, he moves
-let player = { x: 50, y: 210, w: 40, h: 50, vy: 0, jumping: false, frame: 0, dir: 1 };
-let coins = [];
-let holes = [];
-let groundY = 260;
+let player = { x: 80, y: 230, w: 28, h: 55, vy: 0, jumping: false, runFrame: 0 };
+let coins = [], holes = [], cars = [];
+let groundY = 285;
 
 function save() {
   localStorage.setItem("jato_money", myMoney);
@@ -89,97 +85,114 @@ function updateUI() {
   document.getElementById("score").innerText = score;
   save();
 }
-function moveLeft() { player.x -= 25; player.dir = -1; if (player.x < 0) player.x = 0; }
-function moveRight() { player.x += 25; player.dir = 1; if (player.x > 450) player.x = 450; }
-function jump() {
-  if (!player.jumping) { player.vy = -14; player.jumping = true; }
-}
-// Touch and keyboard controls
+function moveLeft() { player.x -= 28; if (player.x < 10) player.x = 10; }
+function moveRight() { player.x += 28; if (player.x > 480) player.x = 480; }
+function jump() { if (!player.jumping) { player.vy = -15; player.jumping = true; } }
 document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") moveLeft();
   if (e.key === "ArrowRight") moveRight();
   if (e.key === "ArrowUp" || e.key === " ") jump();
 });
-function spawn() {
-  if (Math.random() < 0.03) coins.push({ x: 500, y: 180 + Math.random() * 60 });
-  if (Math.random() < 0.015) holes.push({ x: 500, w: 40 });
+
+function drawPlayer() {
+  let x = player.x, y = player.y;
+  let legSwing = Math.sin(player.runFrame) * 8;
+  // Shadow
+  ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(x + 14, groundY + 22, 18, 4, 0, 0, Math.PI*2); ctx.fill();
+  // Legs - they move when running
+  ctx.strokeStyle = "#222"; ctx.lineWidth = 5; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x+10, y+35); ctx.lineTo(x+10+legSwing, groundY+18); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+18, y+35); ctx.lineTo(x+18-legSwing, groundY+18); ctx.stroke();
+  // Shoes
+  ctx.fillStyle = "white"; ctx.fillRect(x+6+legSwing, groundY+14, 10, 5); ctx.fillRect(x+14-legSwing, groundY+14, 10, 5);
+  // Body - yellow hustler shirt
+  ctx.fillStyle = "#ffcc00"; ctx.fillRect(x+5, y+15, 20, 22);
+  // Arms swinging
+  ctx.strokeStyle = "#8B4513"; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(x+8, y+18); ctx.lineTo(x+8-legSwing, y+32); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x+22, y+18); ctx.lineTo(x+22+legSwing, y+32); ctx.stroke();
+  // Head - real skin tone
+  ctx.fillStyle = "#8B4513"; ctx.beginPath(); ctx.arc(x+15, y+7, 10, 0, Math.PI*2); ctx.fill();
+  // Hair
+  ctx.fillStyle = "black"; ctx.beginPath(); ctx.arc(x+15, y+2, 10, Math.PI, Math.PI*2); ctx.fill();
+  // Eye
+  ctx.fillStyle = "white"; ctx.fillRect(x+18, y+5, 4, 4);
+  ctx.fillStyle = "black"; ctx.fillRect(x+20, y+6, 2, 2);
+  // Name
+  ctx.fillStyle = "white"; ctx.font = "bold 11px Arial"; ctx.fillText("JATO", x+2, y-8);
 }
+
 function draw() {
-  // Sky
-  ctx.fillStyle = "#87CEEB"; ctx.fillRect(0, 0, 500, 300);
-  // Sun
-  ctx.fillStyle = "#ffcc00"; ctx.beginPath(); ctx.arc(450, 40, 25, 0, Math.PI * 2); ctx.fill();
-  // Buildings
-  ctx.fillStyle = "#666"; ctx.fillRect(0, 120, 80, 140); ctx.fillRect(100, 100, 80, 160); ctx.fillRect(320, 130, 80, 130);
+  time += 0.01;
+  // Sky - changes from day to sunset
+  let sky = time % 10 < 5 ? "#87CEEB" : "#FF9A3C";
+  ctx.fillStyle = sky; ctx.fillRect(0,0,520,320);
+  // Sun / Moon
+  ctx.fillStyle = "#FFD700"; ctx.beginPath(); ctx.arc(470, 40, 22, 0, Math.PI*2); ctx.fill();
+  // Far buildings - BEHIND player
+  ctx.fillStyle = "#5A5A5A"; ctx.fillRect(0, 110, 70, 175); ctx.fillRect(90, 90, 70, 195); ctx.fillRect(180, 120, 60, 165);
+  ctx.fillStyle = "#444"; ctx.fillRect(300, 100, 70, 185); ctx.fillRect(390, 130, 70, 155);
+  // Windows
+  ctx.fillStyle = "#FFCC00";
+  for (let i=0;i<5;i++){ ctx.fillRect(10+i*12, 130+i*25, 8, 8); ctx.fillRect(100+i*12, 110+i*25, 8, 8); }
+  // Shops sign
+  ctx.fillStyle = "#FF0000"; ctx.fillRect(0, 230, 70, 20); ctx.fillStyle = "white"; ctx.font = "bold 10px Arial"; ctx.fillText("MAMA PUT", 5, 244);
+  ctx.fillStyle = "#00AA00"; ctx.fillRect(90, 230, 70, 20); ctx.fillStyle = "white"; ctx.fillText("KEKE SHOP", 95, 244);
   // Road
-  ctx.fillStyle = "#333"; ctx.fillRect(0, groundY, 500, 40);
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 278, 500, 4);
+  ctx.fillStyle = "#333"; ctx.fillRect(0, groundY, 520, 35);
+  ctx.fillStyle = "white"; ctx.fillRect(0, 303, 520, 3);
   // Holes
   holes.forEach(h => {
-    ctx.fillStyle = "#000"; ctx.beginPath(); ctx.ellipse(h.x + 20, groundY + 5, 22, 8, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.font = "20px Arial"; ctx.fillText("🕳️", h.x + 10, groundY + 8);
+    ctx.fillStyle = "black"; ctx.beginPath(); ctx.ellipse(h.x+18, groundY+8, 20, 7, 0, 0, Math.PI*2); ctx.fill();
+  });
+  // Cars driving
+  cars.forEach(c => {
+    ctx.fillStyle = c.color; ctx.fillRect(c.x, groundY-18, 55, 18);
+    ctx.fillStyle = "#87CEEB"; ctx.fillRect(c.x+10, groundY-16, 15, 8); ctx.fillRect(c.x+32, groundY-16, 15, 8);
+    ctx.fillStyle = "black"; ctx.beginPath(); ctx.arc(c.x+12, groundY+2, 6, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(c.x+43, groundY+2, 6, 0, Math.PI*2); ctx.fill();
   });
   // Coins
   coins.forEach(c => {
-    ctx.font = "30px Arial"; ctx.fillText("💰", c.x, c.y);
+    ctx.fillStyle = "#FFD700"; ctx.beginPath(); ctx.arc(c.x, c.y, 12, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#B8860B"; ctx.beginPath(); ctx.arc(c.x, c.y, 9, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "white"; ctx.font = "bold 12px Arial"; ctx.fillText("₦", c.x-4, c.y+4);
   });
-  // Player - Jato with legs animation
-  player.frame += 0.2;
-  let legOffset = Math.sin(player.frame) * 5;
-  ctx.font = "45px Arial";
-  // Body
-  ctx.fillStyle = "#ffcc00"; ctx.fillRect(player.x + 5, player.y + 10, 30, 30);
-  // Head
-  ctx.fillText(player.dir === 1 ? "🏃" : "🏃", player.x, player.y + 35);
-  // Name
-  ctx.fillStyle = "white"; ctx.font = "bold 12px Arial"; ctx.fillText("JATO", player.x + 2, player.y - 5);
+  // Player is drawn LAST so he is always in front
+  drawPlayer();
 }
 
 function gameLoop() {
-  // Gravity
-  player.y += player.vy;
-  player.vy += 0.8;
-  if (player.y >= 210) { player.y = 210; player.vy = 0; player.jumping = false; }
-  spawn();
-  // Move coins and holes to the left - world moves
-  coins.forEach(c => c.x -= 3);
-  holes.forEach(h => h.x -= 3);
-  coins = coins.filter(c => c.x > -30);
-  holes = holes.filter(h => h.x > -50);
-  // Check coin collection
+  player.runFrame += 0.3;
+  player.y += player.vy; player.vy += 0.8;
+  if (player.y >= 230) { player.y = 230; player.vy = 0; player.jumping = false; }
+  if (Math.random() < 0.02) coins.push({ x: 520, y: 180 + Math.random()*70 });
+  if (Math.random() < 0.012) holes.push({ x: 520 });
+  if (Math.random() < 0.008) cars.push({ x: 520, color: ["#FF0000","#00FF00","#FFFF00"][Math.floor(Math.random()*3)] });
+  coins.forEach(c => c.x -= 3.5); holes.forEach(h => h.x -= 3.5); cars.forEach(c => c.x -= 5);
+  coins = coins.filter(c => c.x > -20); holes = holes.filter(h => h.x > -40); cars = cars.filter(c => c.x > -60);
   coins = coins.filter(c => {
-    let hit = Math.abs(c.x - player.x) < 30 && Math.abs(c.y - (player.y + 20)) < 40;
+    let hit = Math.abs(c.x - (player.x+15)) < 25 && Math.abs(c.y - (player.y+20)) < 35;
     if (hit) { myMoney += 500; score += 1; document.getElementById("message").innerText = "You collected money! +₦500"; }
     return !hit;
   });
-  // Check hole hit
   holes.forEach(h => {
-    if (Math.abs(h.x - player.x) < 25 && player.y >= 210) {
-      myEnergy -= 10; myHunger += 5;
-      document.getElementById("message").innerText = "Ouch! You fell in a pothole! -10 Energy";
-      h.x = -100; // remove hole
-      if (myEnergy <= 0) { myEnergy = 0; document.getElementById("message").innerText = "You are tired! Press SLEEP!"; }
-    }
+    if (Math.abs(h.x - player.x) < 22 && player.y >= 230) { myEnergy -= 10; myHunger += 5; h.x = -100; document.getElementById("message").innerText = "Ouch! Pothole! -10 Energy"; if (myEnergy <= 0) myEnergy = 0; }
   });
-  draw();
-  updateUI();
+  cars.forEach(c => {
+    if (Math.abs(c.x - player.x) < 35 && player.y >= 230) { myEnergy -= 15; c.x = -100; document.getElementById("message").innerText = "Car almost hit you! Jump over cars!"; if (myEnergy <= 0) myEnergy = 0; }
+  });
+  draw(); updateUI();
   requestAnimationFrame(gameLoop);
 }
-function eatFood() {
-  if (myMoney < 1000) { document.getElementById("message").innerText = "No money! Collect coins!"; return; }
-  myMoney -= 1000; myHunger -= 40; if (myHunger < 0) myHunger = 0;
-  document.getElementById("message").innerText = "You ate! Hunger reduced!"; updateUI();
-}
+function eatFood() { if (myMoney < 1000) { document.getElementById("message").innerText = "No money! Collect coins!"; return; } myMoney -= 1000; myHunger -= 40; if (myHunger < 0) myHunger = 0; document.getElementById("message").innerText = "You ate!"; updateUI(); }
 function sleep() { myEnergy = 100; document.getElementById("message").innerText = "You slept! Energy is full!"; updateUI(); }
 function buyItem(name, cost, newPay, emoji) {
   if (myPay >= newPay) { document.getElementById("message").innerText = "You already bought " + name + "!"; return; }
-  if (myMoney < cost) { document.getElementById("message").innerText = name + " is ₦" + cost.toLocaleString() + "! Collect more coins!"; return; }
-  myMoney -= cost; myPay = newPay; myGarage += " " + emoji + " " + name;
-  document.getElementById("message").innerText = "You bought " + name + "!"; updateUI();
+  if (myMoney < cost) { document.getElementById("message").innerText = name + " is ₦" + cost.toLocaleString() + "!"; return; }
+  myMoney -= cost; myPay = newPay; myGarage += " " + emoji + " " + name; document.getElementById("message").innerText = "You bought " + name + "!"; updateUI();
 }
 function resetGame() { localStorage.clear(); location.reload(); }
-updateUI();
-gameLoop();
+updateUI(); gameLoop();
 </script>
 </body>
 </html>
