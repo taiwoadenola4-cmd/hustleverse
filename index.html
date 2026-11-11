@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,7 +24,8 @@ button { background: #ffcc00; color: black; border: none; padding: 15px 25px; fo
 
 <button onclick="goWork()">💼 GO WORK</button><br>
 <button onclick="eatFood()" style="background:#00ff88;">🍲 EAT (-₦1,000)</button><br>
-<button onclick="sleep()" style="background:#00ccff;">😴 SLEEP</button>
+<button onclick="sleep()" style="background:#00ccff;">😴 SLEEP</button><br>
+<button onclick="luckySpin()" style="background:#ff00ff; color:white;">🎰 LUCKY SPIN (Free!)</button>
 
 <div class="shop">
 <h3>🛒 SHOP</h3>
@@ -80,6 +80,12 @@ function eatFood() {
   update();
 }
 function sleep() { myEnergy = 100; document.getElementById("message").innerText = "You sleep! Energy full!"; update(); }
+function luckySpin() {
+  let win = Math.floor(Math.random() * 10000);
+  myMoney += win;
+  document.getElementById("message").innerText = "🎰 LUCKY SPIN! You win ₦" + win + "!";
+  update();
+}
 function buyItem(name, cost, newPay) {
   if (myPay >= newPay) { document.getElementById("message").innerText = "You don buy " + name + " already!"; return; }
   if (myMoney < cost) { document.getElementById("message").innerText = name + " na ₦" + cost + "! Hustle more!"; return; }
