@@ -2,140 +2,169 @@
 <html>
 <head>
 <title>HUSTLEVERSE - Lagos Life by Adenola Taiwo</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <style>
-* { box-sizing: border-box; }
-body { background:#0f0f0f; color:white; text-align:center; font-family:sans-serif; margin:0; padding:0; padding-bottom:90px; }
-.topbar { background:#1a0033; padding:12px 10px 8px; position:sticky; top:0; z-index:10; }
-.topbar h1 { color:#ffcc00; margin:0; font-size:20px; }
-.credit { color:#ffcc00; font-size:12px; font-weight:bold; margin:2px; }
-.lagos-info { display:flex; justify-content:space-between; background:#2a0055; margin:10px; padding:10px; border-radius:12px; font-size:12px; }
-.stats { display:flex; justify-content:space-between; margin:0 10px; gap:6px; }
-.stat { background:white; color:black; flex:1; padding:10px 5px; border-radius:12px; font-size:13px; }
-.stat b { display:block; font-size:16px; }
-#gameBox { background:#87CEEB; margin:10px; border-radius:18px; overflow:hidden; height:300px; position:relative; border:3px solid #ffcc00; }
-canvas { width:100%; height:100%; display:block; }
-.tap-hint { position:absolute; bottom:8px; left:0; right:0; background:rgba(0,0,0,0.6); color:white; font-size:12px; padding:6px; }
-.message { background:#ffcc00; color:black; margin:10px; padding:10px; border-radius:12px; font-weight:bold; font-size:14px; }
-.card { background:white; color:black; margin:10px; padding:14px; border-radius:16px; text-align:left; }
-.card h3 { margin:0 0 8px; text-align:center; }
-.shop-item { display:flex; justify-content:space-between; align-items:center; background:#f2f2f2; padding:12px; border-radius:12px; margin:8px 0; }
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; height:100%; height:100dvh; background:#a8d8a8; font-family:sans-serif; overflow:hidden; }
+#wrap { position:fixed; inset:0; display:flex; flex-direction:column; }
+#scene { flex:1; position:relative; background:linear-gradient(#cfeeff 0%, #e8f7d6 55%, #9ed29e 55%, #8bc98b 100%); overflow:hidden; }
+.top { position:absolute; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; align-items:center; gap:8px; z-index:10; }
+.pill { background:rgba(0,0,0,0.75); color:white; padding:8px 12px; border-radius:20px; font-size:13px; font-weight:bold; display:flex; align-items:center; gap:5px; }
+.pill.white { background:white; color:black; }
+.pill small { font-weight:normal; opacity:0.7; }
+canvas { position:absolute; inset:0; width:100%; height:100%; }
+.player-label { position:absolute; background:#3b82f6; color:white; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:bold; transform:translate(-50%,0); pointer-events:none; z-index:5; }
+.notif { position:absolute; left:10px; right:10px; bottom:118px; background:rgba(0,0,0,0.65); color:white; padding:12px; border-radius:18px; display:flex; gap:10px; align-items:center; z-index:10; }
+.notif b { display:block; font-size:13px; }
+.perf { background:#22c55e; color:white; padding:4px 8px; border-radius:10px; font-size:11px; font-weight:bold; display:inline-block; margin-top:4px; }
+.bottom { position:absolute; left:0; right:0; bottom:0; padding:8px 10px 12px; z-index:10; }
+.controls-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.icon-btn { width:44px; height:44px; border-radius:50%; border:none; font-size:20px; background:rgba(0,0,0,0.8); color:white; }
+.clean { background:rgba(0,0,0,0.7); color:white; padding:6px 10px; border-radius:15px; font-size:11px; }
+.nav { display:flex; align-items:center; gap:8px; }
+.avatar { width:52px; height:52px; border-radius:50%; border:3px solid white; background:#ffcc00; display:flex; align-items:center; justify-content:center; font-size:24px; }
+.nav-center { flex:1; background:rgba(0,0,0,0.85); border-radius:25px; display:flex; justify-content:space-around; padding:10px; color:white; font-size:13px; }
+.nav-center button { background:none; border:none; color:white; font-size:13px; }
+.nav-center .active { background:white; color:black; padding:6px 14px; border-radius:18px; font-weight:bold; }
+.phone-btn { position:relative; width:56px; height:56px; border-radius:50%; background:#c084fc; border:3px solid white; font-size:22px; }
+.badge { position:absolute; top:-4px; right:-4px; background:red; color:white; font-size:10px; padding:2px 5px; border-radius:10px; }
+#shop { display:none; position:absolute; inset:0; background:rgba(0,0,0,0.92); color:white; z-index:30; overflow-y:auto; padding:20px 14px 90px; }
+.shop-item { display:flex; justify-content:space-between; align-items:center; background:white; color:black; padding:12px; border-radius:12px; margin:10px 0; }
 .shop-item button { background:#1a0033; color:white; border:none; padding:10px 14px; border-radius:10px; font-weight:bold; }
-.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#1a0033; display:flex; padding:8px; gap:6px; z-index:20; }
-.bottom-nav button { flex:1; border:none; padding:14px 4px; border-radius:12px; font-weight:bold; font-size:14px; }
-.footer { padding:15px; font-size:12px; opacity:0.8; }
-.bar { background:#ddd; height:10px; border-radius:10px; overflow:hidden; margin-top:4px; }
-.fill { height:100%; }
+.action-bar { position:absolute; bottom:170px; left:10px; right:10px; display:flex; gap:6px; z-index:11; }
+.action-bar button { flex:1; border:none; padding:12px 4px; border-radius:14px; font-weight:bold; font-size:12px; }
 </style>
 </head>
 <body>
-<div class="topbar">
-<h1>🔥 HUSTLEVERSE 🔥</h1>
-<p class="credit">Built by Adenola Taiwo 👑</p>
+<div id="wrap">
+<div id="scene">
+<canvas id="game"></canvas>
+
+<div class="top">
+<div class="pill">☀️ 🌡️ <span id="clock">3:08 PM</span></div>
+<div class="pill">⌄ <span style="background:#ef4444; padding:1px 6px; border-radius:10px; font-size:10px;">1</span></div>
+<div class="pill">₦<span id="money">24.5B</span> <span style="background:white; color:black; width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;">+</span></div>
 </div>
 
-<div class="lagos-info">
-<span>📍 Lagos, Nigeria</span><span id="lagosTime">⏰ 2:39 PM</span><span>☀️ Sunny • Traffic: Heavy</span>
+<div class="pill white" style="position:absolute; top:52px; left:10px; z-index:10;">🏛️ <span style="background:#ffcc00; width:22px; height:4px; border-radius:4px;"></span> Home <span id="homeTime">3:27 PM</span> ⌄</div>
+
+<div class="player-label" id="jatoLabel" style="left:50%; top:55%;">@Adenola_Taiwo 👑</div>
+<div class="player-label" style="left:32%; top:38%; background:#3b82f6;">@Jato</div>
+<div class="player-label" style="left:48%; top:35%; background:#3b82f6;">@EstherElla25</div>
+<div class="player-label" style="left:68%; top:48%; background:#3b82f6;">@Daniel_07</div>
+
+<div class="action-bar">
+<button onclick="doHustle()" style="background:#ffcc00;">💼 HUSTLE</button>
+<button onclick="eatFood()" style="background:#00ff88;">🍲 EAT</button>
+<button onclick="sleep()" style="background:#00ccff;">😴 SLEEP</button>
+<button onclick="jump()" style="background:white;">⬆ JUMP</button>
 </div>
 
-<div class="stats">
-<div class="stat">Rank<b id="rank">Street Boy</b></div>
-<div class="stat">Money<b id="money">₦500</b></div>
-<div class="stat">Score<b id="score">0</b></div>
+<div class="notif">
+<div style="background:white; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px;">📈</div>
+<div><b id="message">They handled it: Safe plan approved</b><span class="perf">+4.2 PERFORMANCE</span></div>
 </div>
 
-<div class="message" id="message">👆 Tap the street to move Jato. Tap Jato to jump!</div>
-
-<div id="gameBox">
-<canvas id="game" width="520" height="300"></canvas>
-<div class="tap-hint">👈 TAP LEFT to go left &nbsp; | &nbsp; 👆 TAP JATO to jump &nbsp; | &nbsp; TAP RIGHT 👉</div>
+<div class="bottom">
+<div class="controls-row">
+<div style="display:flex; gap:8px;">
+<button class="icon-btn" onclick="moveLeft()">◀</button>
+<button class="icon-btn" onclick="moveRight()">▶</button>
+<button class="icon-btn" onclick="jump()">⬆</button>
+</div>
+<div class="clean">^ Clean screen</div>
+</div>
+<div class="nav">
+<div class="avatar">👤</div>
+<div class="nav-center">
+<button class="active">🏠 Home</button>
+<button onclick="openShop()">🛒</button>
+<button>🗺️</button>
+</div>
+<button class="phone-btn" onclick="openShop()">📱<span class="badge">24</span></button>
+</div>
+<div style="text-align:center; font-size:10px; color:rgba(0,0,0,0.6); margin-top:6px;">HUSTLEVERSE • Built by Adenola Taiwo • Tap the room to move Jato</div>
 </div>
 
-<div class="card">
-<h3>🧍 Jato Status</h3>
-<p>💼 Pay per job: <b id="pay">₦2,000</b> | 🏠 Garage: <span id="garage">Nothing yet</span></p>
-<p>🍲 Hunger: <b id="hunger">50</b> / 100</p><div class="bar"><div class="fill" id="hungerBar" style="width:50%; background:#ff8800;"></div></div>
-<p>⚡ Energy: <b id="energy">100</b> / 100</p><div class="bar"><div class="fill" id="energyBar" style="width:100%; background:#00ccff;"></div></div>
-<p>Tip: In Lagos Life, you tap to move. You do not need a gamepad.</p>
-</div>
-
-<div class="card">
-<h3>🛒 Lagos Market - Shop</h3>
+<div id="shop">
+<h2 style="text-align:center;">🛒 Lagos Market</h2>
+<p style="text-align:center;">Money: <b id="money2">₦500</b> | Pay: <b id="pay">₦2,000</b> | Garage: <span id="garage">Nothing yet</span></p>
+<p style="text-align:center;">Hunger: <b id="hunger">50</b>/100 | Energy: <b id="energy">100</b>/100 | Score: <b id="score">0</b></p>
 <div class="shop-item"><span>📱 Phone<br><small>Pay ₦4,000</small></span><button onclick="buyItem('Phone',10000,4000,'📱')">₦10,000 BUY</button></div>
 <div class="shop-item"><span>🛺 Keke<br><small>Pay ₦8,000</small></span><button onclick="buyItem('Keke',50000,8000,'🛺')">₦50,000 BUY</button></div>
 <div class="shop-item"><span>🚗 Car<br><small>Pay ₦20,000</small></span><button onclick="buyItem('Car',150000,20000,'🚗')">₦150,000 BUY</button></div>
 <div class="shop-item"><span>🏠 House<br><small>Pay ₦50,000</small></span><button onclick="buyItem('House',500000,50000,'🏠')">₦500,000 BUY</button></div>
 <div class="shop-item"><span>👑 Mansion<br><small>Pay ₦150,000</small></span><button onclick="buyItem('Mansion',2000000,150000,'👑')">₦2,000,000 BUY</button></div>
+<button onclick="closeShop()" style="background:#ffcc00; border:none; padding:14px; width:100%; border-radius:12px; font-weight:bold;">⬅ BACK TO HOME</button>
+<p style="text-align:center; font-size:12px; margin-top:12px;">© 2026 HUSTLEVERSE<br>Designed and Built by <b>Adenola Taiwo</b></p>
 </div>
 
-<div class="footer">
-<p>© 2026 HUSTLEVERSE</p>
-<p>Designed and Built by <b>Adenola Taiwo</b></p>
 </div>
-
-<div class="bottom-nav">
-<button onclick="eatFood()" style="background:#00ff88;">🍲 EAT</button>
-<button onclick="sleep()" style="background:#00ccff;">😴 SLEEP</button>
-<button onclick="doHustle()" style="background:#ffcc00;">💼 HUSTLE</button>
-<button onclick="document.querySelector('.card').scrollIntoView({behavior:'smooth'})" style="background:white;">🛒 SHOP</button>
 </div>
 
 <script>
 let canvas=document.getElementById("game"); let ctx=canvas.getContext("2d");
+function resize(){ canvas.width=canvas.parentElement.clientWidth; canvas.height=canvas.parentElement.clientHeight; }
+window.addEventListener("resize", resize); resize();
 let myMoney=Number(localStorage.getItem("jato_money"))||500;
 let myHunger=Math.min(100, Number(localStorage.getItem("jato_hunger"))||50);
 let myEnergy=Number(localStorage.getItem("jato_energy"))||100;
 let myPay=Number(localStorage.getItem("jato_pay"))||2000;
 let myGarage=localStorage.getItem("jato_garage")||"";
-let score=0, time=0;
-let player={x:80,y:230,vy:0,jumping:false,runFrame:0};
-let coins=[],holes=[],cars=[]; let groundY=285;
-
+let score=0;
+let player={x:0.5, y:0.55, vy:0, jumping:false};
+let coins=[]; let otherPlayers=[{x:0.32,y:0.42,c:"#ff6b6b"},{x:0.48,y:0.40,c:"#22c55e"},{x:0.65,y:0.50,c:"#a855f7"}];
 function save(){ localStorage.setItem("jato_money",myMoney); localStorage.setItem("jato_hunger",myHunger); localStorage.setItem("jato_energy",myEnergy); localStorage.setItem("jato_pay",myPay); localStorage.setItem("jato_garage",myGarage); }
-function getRank(){ if(myMoney>=2000000) return "👑 BILLIONAIRE"; if(myMoney>=500000) return "🏠 LANDLORD"; if(myMoney>=150000) return "🚗 BIG MAN"; if(myMoney>=50000) return "👑 BIG BOY"; if(myMoney>=10000) return "🔥 HUSTLER"; return "🚶 Street Boy"; }
+function fmt(n){ if(n>=1000000000) return (n/1000000000).toFixed(1)+"B"; if(n>=1000000) return (n/1000000).toFixed(1)+"M"; return n.toLocaleString(); }
 function updateUI(){
   myHunger=Math.max(0,Math.min(100,myHunger)); myEnergy=Math.max(0,Math.min(100,myEnergy));
-  document.getElementById("money").innerText="₦"+myMoney.toLocaleString();
+  document.getElementById("money").innerText=fmt(myMoney);
+  document.getElementById("money2").innerText="₦"+myMoney.toLocaleString();
   document.getElementById("hunger").innerText=myHunger;
   document.getElementById("energy").innerText=myEnergy;
   document.getElementById("pay").innerText="₦"+myPay.toLocaleString();
-  document.getElementById("rank").innerText=getRank();
   document.getElementById("garage").innerText=myGarage||"Nothing yet";
   document.getElementById("score").innerText=score;
-  document.getElementById("hungerBar").style.width=myHunger+"%";
-  document.getElementById("energyBar").style.width=myEnergy+"%";
   save();
 }
 function setMsg(t){ document.getElementById("message").innerText=t; }
-
-// TOUCH CONTROLS - Tap street, no gamepad needed
-canvas.addEventListener("touchstart", handleTouch, {passive:false});
-canvas.addEventListener("click", handleTouch);
-function handleTouch(e){
-  if(e.preventDefault) e.preventDefault();
-  let rect=canvas.getBoundingClientRect();
-  let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  let x = (clientX - rect.left) / rect.width * 520;
-  if(Math.abs(x - (player.x+15)) < 50){ jump(); }
-  else if(x < player.x){ player.x-=35; if(player.x<10)player.x=10; }
-  else { player.x+=35; if(player.x>480)player.x=480; }
-}
-function jump(){ if(!player.jumping){ player.vy=-15; player.jumping=true; } }
-function doHustle(){
-  if(myEnergy<20){ setMsg("You are tired! Tap SLEEP at the bottom."); return; }
-  if(myHunger>=90){ setMsg("You are hungry! Tap EAT at the bottom."); return; }
-  myMoney+=myPay; myHunger+=10; myEnergy-=10; score+=1;
-  setMsg("You hustled in Lagos! +₦"+myPay.toLocaleString());
-  updateUI();
-}
-function drawPlayer(){ let x=player.x,y=player.y; let s=Math.sin(player.runFrame)*8; ctx.fillStyle="rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(x+14,groundY+22,18,4,0,0,Math.PI*2); ctx.fill(); ctx.strokeStyle="#222"; ctx.lineWidth=5; ctx.lineCap="round"; ctx.beginPath(); ctx.moveTo(x+10,y+35); ctx.lineTo(x+10+s,groundY+18); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x+18,y+35); ctx.lineTo(x+18-s,groundY+18); ctx.stroke(); ctx.fillStyle="white"; ctx.fillRect(x+6+s,groundY+14,10,5); ctx.fillRect(x+14-s,groundY+14,10,5); ctx.fillStyle="#ffcc00"; ctx.fillRect(x+5,y+15,20,22); ctx.strokeStyle="#8B4513"; ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(x+8,y+18); ctx.lineTo(x+8-s,y+32); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x+22,y+18); ctx.lineTo(x+22+s,y+32); ctx.stroke(); ctx.fillStyle="#8B4513"; ctx.beginPath(); ctx.arc(x+15,y+7,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(x+15,y+2,10,Math.PI,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.fillRect(x+18,y+5,4,4); ctx.fillStyle="black"; ctx.fillRect(x+20,y+6,2,2); ctx.fillStyle="white"; ctx.font="bold 11px Arial"; ctx.fillText("JATO",x+2,y-8); }
-function draw(){ time+=0.01; let sky=time%10<5?"#87CEEB":"#FF9A3C"; ctx.fillStyle=sky; ctx.fillRect(0,0,520,320); ctx.fillStyle="#FFD700"; ctx.beginPath(); ctx.arc(470,40,22,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#5A5A5A"; ctx.fillRect(0,110,70,175); ctx.fillRect(90,90,70,195); ctx.fillRect(180,120,60,165); ctx.fillStyle="#444"; ctx.fillRect(300,100,70,185); ctx.fillRect(390,130,70,155); ctx.fillStyle="#FFCC00"; for(let i=0;i<5;i++){ ctx.fillRect(10+i*12,130+i*25,8,8); ctx.fillRect(100+i*12,110+i*25,8,8);} ctx.fillStyle="#FF0000"; ctx.fillRect(0,230,70,20); ctx.fillStyle="white"; ctx.font="bold 10px Arial"; ctx.fillText("MAMA PUT",5,244); ctx.fillStyle="#00AA00"; ctx.fillRect(90,230,70,20); ctx.fillStyle="white"; ctx.fillText("KEKE SHOP",95,244); ctx.fillStyle="#333"; ctx.fillRect(0,groundY,520,35); ctx.fillStyle="white"; ctx.fillRect(0,303,520,3); holes.forEach(h=>{ ctx.fillStyle="black"; ctx.beginPath(); ctx.ellipse(h.x+18,groundY+8,20,7,0,0,Math.PI*2); ctx.fill(); }); cars.forEach(c=>{ ctx.fillStyle=c.color; ctx.fillRect(c.x,groundY-18,55,18); ctx.fillStyle="#87CEEB"; ctx.fillRect(c.x+10,groundY-16,15,8); ctx.fillRect(c.x+32,groundY-16,15,8); ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(c.x+12,groundY+2,6,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(c.x+43,groundY+2,6,0,Math.PI*2); ctx.fill(); }); coins.forEach(c=>{ ctx.fillStyle="#FFD700"; ctx.beginPath(); ctx.arc(c.x,c.y,12,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#B8860B"; ctx.beginPath(); ctx.arc(c.x,c.y,9,0,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.font="bold 12px Arial"; ctx.fillText("₦",c.x-4,c.y+4); }); drawPlayer(); }
-function gameLoop(){ player.runFrame+=0.3; player.y+=player.vy; player.vy+=0.8; if(player.y>=230){player.y=230;player.vy=0;player.jumping=false;} if(Math.random()<0.02)coins.push({x:520,y:180+Math.random()*70}); if(Math.random()<0.012)holes.push({x:520}); if(Math.random()<0.008)cars.push({x:520,color:["#FF0000","#00FF00","#FFFF00"][Math.floor(Math.random()*3)]}); coins.forEach(c=>c.x-=3.5); holes.forEach(h=>h.x-=3.5); cars.forEach(c=>c.x-=5); coins=coins.filter(c=>c.x>-20); holes=holes.filter(h=>h.x>-40); cars=cars.filter(c=>c.x>-60); coins=coins.filter(c=>{ let hit=Math.abs(c.x-(player.x+15))<25&&Math.abs(c.y-(player.y+20))<35; if(hit){myMoney+=500;score+=1;setMsg("You collected money! +₦500");} return !hit; }); holes.forEach(h=>{ if(Math.abs(h.x-player.x)<22&&player.y>=230){myEnergy-=10;myHunger=Math.min(100,myHunger+5);h.x=-100;setMsg("Ouch! Pothole! -10 Energy");} }); cars.forEach(c=>{ if(Math.abs(c.x-player.x)<35&&player.y>=230){myEnergy-=15;c.x=-100;setMsg("Car almost hit you! Tap Jato to jump!");} }); draw(); updateUI(); requestAnimationFrame(gameLoop); }
-function eatFood(){ if(myMoney<1000){setMsg("No money! Collect coins or HUSTLE!");return;} myMoney-=1000; myHunger-=40; setMsg("You ate Mama Put! Hunger reduced!"); updateUI(); }
+function moveLeft(){ player.x-=0.05; if(player.x<0.1)player.x=0.1; }
+function moveRight(){ player.x+=0.05; if(player.x>0.9)player.x=0.9; }
+function jump(){ if(!player.jumping){ player.vy=-0.04; player.jumping=true; } }
+function doHustle(){ if(myEnergy<20){ setMsg("You are tired! Tap SLEEP."); return; } if(myHunger>=90){ setMsg("You are hungry! Tap EAT."); return; } myMoney+=myPay; myHunger+=5; myEnergy-=5; score+=1; setMsg("You hustled in Lagos! +₦"+myPay.toLocaleString()); updateUI(); }
+function eatFood(){ if(myMoney<1000){ setMsg("No money! Hustle first!"); return; } myMoney-=1000; myHunger-=40; setMsg("You ate Mama Put!"); updateUI(); }
 function sleep(){ myEnergy=100; setMsg("You slept! Energy is full!"); updateUI(); }
-function buyItem(n,cost,newPay,emoji){ if(myPay>=newPay){setMsg("You already own "+n+"!");return;} if(myMoney<cost){setMsg(n+" is ₦"+cost.toLocaleString()+"! Hustle more!");return;} myMoney-=cost; myPay=newPay; myGarage+=" "+emoji+" "+n; setMsg("You bought "+n+"!"); updateUI(); }
-setInterval(()=>{ let d=new Date(); document.getElementById("lagosTime").innerText="⏰ "+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); },1000);
-updateUI(); gameLoop();
+function openShop(){ document.getElementById("shop").style.display="block"; }
+function closeShop(){ document.getElementById("shop").style.display="none"; }
+function buyItem(n,cost,newPay,emoji){ if(myPay>=newPay){ setMsg("You already own "+n); return; } if(myMoney<cost){ setMsg(n+" is ₦"+cost.toLocaleString()); return; } myMoney-=cost; myPay=newPay; myGarage+=" "+emoji+" "+n; setMsg("You bought "+n+"!"); updateUI(); }
+canvas.addEventListener("touchstart", (e)=>{ let r=canvas.getBoundingClientRect(); let x=(e.touches[0].clientX-r.left)/r.width; let y=(e.touches[0].clientY-r.top)/r.height; if(Math.abs(x-player.x)<0.08) jump(); else if(x<player.x) moveLeft(); else moveRight(); });
+function draw(){
+  let W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  // Isometric room floor like Lagos Life screenshot
+  ctx.fillStyle="#d9d9d9"; ctx.beginPath(); ctx.moveTo(W*0.08,H*0.28); ctx.lineTo(W*0.92,H*0.28); ctx.lineTo(W*0.92,H*0.72); ctx.lineTo(W*0.08,H*0.72); ctx.closePath(); ctx.fill();
+  ctx.fillStyle="#8a8a8a"; ctx.fillRect(W*0.08,H*0.28,W*0.84,10);
+  ctx.fillStyle="#2a2a2a"; ctx.fillRect(W*0.72,H*0.38,W*0.20,50); ctx.fillStyle="white"; ctx.font="bold 11px Arial"; ctx.fillText("MARINA TOWERS", W*0.73, H*0.42);
+  // Sofa + table like screenshot
+  ctx.fillStyle="#14532d"; ctx.fillRect(W*0.30,H*0.52,W*0.28,38); ctx.fillRect(W*0.30,H*0.48,W*0.10,20);
+  ctx.fillStyle="#d4a373"; ctx.fillRect(W*0.38,H*0.60,W*0.30,42); ctx.fillStyle="#a16207"; ctx.fillRect(W*0.38,H*0.60,W*0.05,42); ctx.fillRect(W*0.63,H*0.60,W*0.05,42);
+  // Other players
+  otherPlayers.forEach(p=>{ let px=W*p.x, py=H*p.y; ctx.fillStyle=p.c; ctx.beginPath(); ctx.arc(px,py-18,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#222"; ctx.fillRect(px-6,py-10,12,24); });
+  // Jato - main player
+  let px=W*player.x, py=H*player.y - (player.jumping?20:0);
+  document.getElementById("jatoLabel").style.left=(player.x*100)+"%"; document.getElementById("jatoLabel").style.top=((player.y*100)-8)+"%";
+  ctx.fillStyle="#8B4513"; ctx.beginPath(); ctx.arc(px,py-18,11,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="black"; ctx.beginPath(); ctx.arc(px,py-22,11,Math.PI,Math.PI*2); ctx.fill();
+  ctx.fillStyle="#ffcc00"; ctx.fillRect(px-10,py-8,20,24);
+  ctx.fillStyle="#222"; ctx.fillRect(px-8,py+16,7,16); ctx.fillRect(px+2,py+16,7,16);
+  ctx.fillStyle="#fff"; ctx.font="bold 12px Arial"; ctx.fillText("JATO", px-14, py-32);
+  // Coins
+  coins.forEach(c=>{ ctx.fillStyle="#FFD700"; ctx.beginPath(); ctx.arc(W*c.x,H*c.y,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle="white"; ctx.font="bold 11px Arial"; ctx.fillText("₦",W*c.x-4,H*c.y+4); });
+  requestAnimationFrame(draw);
+}
+setInterval(()=>{ if(Math.random()<0.6) coins.push({x:0.1+Math.random()*0.8, y:0.35+Math.random()*0.25}); coins=coins.filter(c=>{ let hit=Math.abs(c.x-player.x)<0.05 && Math.abs(c.y-player.y)<0.08; if(hit){ myMoney+=500; score+=1; setMsg("You collected +₦500"); updateUI(); } return !hit; }); },800);
+setInterval(()=>{ let d=new Date(); let t=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); document.getElementById("clock").innerText=t; document.getElementById("homeTime").innerText=t; },1000);
+updateUI(); draw();
 </script>
 </body>
 </html>
