@@ -4,20 +4,30 @@
 <title>HUSTLEVERSE - JATO</title>
 <style>
 body { background: #1a0033; color: white; text-align: center; font-family: sans-serif; padding: 20px; }
-h1 { color: #ffcc00; }
+h1 { color: #ffcc00; margin: 5px; }
 button { background: #ffcc00; color: black; border: none; padding: 15px 25px; font-size: 18px; border-radius: 10px; margin: 5px; font-weight: bold; width: 90%; }
 .box { background: white; color: black; padding: 20px; border-radius: 15px; margin: 15px 0; }
 .shop { background: #2a0055; padding: 15px; border-radius: 15px; margin-top: 15px; }
+.char { font-size: 90px; line-height: 1; margin: 5px; }
+.bar { background: #ddd; height: 12px; border-radius: 10px; overflow: hidden; margin: 5px 0; }
+.fill { height: 100%; }
+.garage { font-size: 30px; background: #2a0055; padding: 10px; border-radius: 15px; margin-top: 10px; }
 </style>
 </head>
 <body>
 <h1>🔥 HUSTLEVERSE 🔥</h1>
 <p>Welcome JATO! | Rank: <b id="rank">Street Boy</b></p>
 
+<div class="char" id="char">🚶</div>
+<p id="charText">Street Boy dey waka...</p>
+<div class="garage">🏠 My Garage: <span id="garage">Nothing yet</span></div>
+
 <div class="box">
 <p>💰 Money: <b id="money">₦500</b></p>
 <p>🍲 Hunger: <b id="hunger">50</b> / 100</p>
+<div class="bar"><div class="fill" id="hungerBar" style="width:50%; background:#ff8800;"></div></div>
 <p>⚡ Energy: <b id="energy">100</b> / 100</p>
+<div class="bar"><div class="fill" id="energyBar" style="width:100%; background:#00ccff;"></div></div>
 <p>💼 Pay per Work: <b id="pay">₦2,000</b></p>
 <p id="message">Press GO WORK to hustle!</p>
 </div>
@@ -30,11 +40,11 @@ button { background: #ffcc00; color: black; border: none; padding: 15px 25px; fo
 <div class="shop">
 <h3>🛒 SHOP</h3>
 <p>Buy better tools, earn more!</p>
-<button onclick="buyItem('Phone',10000,4000)" style="background:white;">📱 Phone - ₦10,000<br><small>Pay: ₦4,000</small></button><br>
-<button onclick="buyItem('Keke',50000,8000)" style="background:white;">🛺 Keke - ₦50,000<br><small>Pay: ₦8,000</small></button><br>
-<button onclick="buyItem('Car',150000,20000)" style="background:white;">🚗 Car - ₦150,000<br><small>Pay: ₦20,000</small></button><br>
-<button onclick="buyItem('House',500000,50000)" style="background:white;">🏠 House - ₦500,000<br><small>Pay: ₦50,000</small></button><br>
-<button onclick="buyItem('Mansion',2000000,150000)" style="background:#ffcc00;">👑 Mansion - ₦2,000,000<br><small>Pay: ₦150,000 - FINAL BOSS!</small></button>
+<button onclick="buyItem('Phone',10000,4000,'📱')" style="background:white;">📱 Phone - ₦10,000<br><small>Pay: ₦4,000</small></button><br>
+<button onclick="buyItem('Keke',50000,8000,'🛺')" style="background:white;">🛺 Keke - ₦50,000<br><small>Pay: ₦8,000</small></button><br>
+<button onclick="buyItem('Car',150000,20000,'🚗')" style="background:white;">🚗 Car - ₦150,000<br><small>Pay: ₦20,000</small></button><br>
+<button onclick="buyItem('House',500000,50000,'🏠')" style="background:white;">🏠 House - ₦500,000<br><small>Pay: ₦50,000</small></button><br>
+<button onclick="buyItem('Mansion',2000000,150000,'👑')" style="background:#ffcc00;">👑 Mansion - ₦2,000,000<br><small>Pay: ₦150,000 - FINAL BOSS!</small></button>
 </div>
 
 <script>
@@ -42,12 +52,14 @@ let myMoney = Number(localStorage.getItem("jato_money")) || 500;
 let myHunger = Number(localStorage.getItem("jato_hunger")) || 50;
 let myEnergy = Number(localStorage.getItem("jato_energy")) || 100;
 let myPay = Number(localStorage.getItem("jato_pay")) || 2000;
+let myGarage = localStorage.getItem("jato_garage") || "";
 
 function save() {
   localStorage.setItem("jato_money", myMoney);
   localStorage.setItem("jato_hunger", myHunger);
   localStorage.setItem("jato_energy", myEnergy);
   localStorage.setItem("jato_pay", myPay);
+  localStorage.setItem("jato_garage", myGarage);
 }
 function getRank() {
   if (myMoney >= 2000000) return "👑 BILLIONAIRE";
@@ -57,12 +69,28 @@ function getRank() {
   if (myMoney >= 10000) return "🔥 HUSTLER";
   return "🚶 Street Boy";
 }
+function updateChar() {
+  let char = "🚶"; let text = "Street Boy dey waka...";
+  if (myPay >= 150000) { char = "👑"; text = "BILLIONAIRE! Everybody dey hail you!"; }
+  else if (myPay >= 50000) { char = "🏠"; text = "Landlord! You don hammer!"; }
+  else if (myPay >= 20000) { char = "🚗"; text = "Big Man dey cruise!"; }
+  else if (myPay >= 8000) { char = "🛺"; text = "Keke rider! Hustler on wheels!"; }
+  else if (myPay >= 4000) { char = "😎"; text = "Hustler with Phone! Sharp guy!"; }
+  if (myEnergy < 20) { char = "😴"; text = "You don tire... Go SLEEP!"; }
+  else if (myHunger >= 90) { char = "🤤"; text = "Hunger wan kill you! Go EAT!"; }
+  document.getElementById("char").innerText = char;
+  document.getElementById("charText").innerText = text;
+  document.getElementById("garage").innerText = myGarage || "Nothing yet";
+  document.getElementById("hungerBar").style.width = myHunger + "%";
+  document.getElementById("energyBar").style.width = myEnergy + "%";
+}
 function update() {
   document.getElementById("money").innerText = "₦" + myMoney;
   document.getElementById("hunger").innerText = myHunger;
   document.getElementById("energy").innerText = myEnergy;
   document.getElementById("pay").innerText = "₦" + myPay;
   document.getElementById("rank").innerText = getRank();
+  updateChar();
   save();
 }
 function goWork() {
@@ -86,10 +114,11 @@ function luckySpin() {
   document.getElementById("message").innerText = "🎰 LUCKY SPIN! You win ₦" + win + "!";
   update();
 }
-function buyItem(name, cost, newPay) {
+function buyItem(name, cost, newPay, emoji) {
   if (myPay >= newPay) { document.getElementById("message").innerText = "You don buy " + name + " already!"; return; }
   if (myMoney < cost) { document.getElementById("message").innerText = name + " na ₦" + cost + "! Hustle more!"; return; }
   myMoney -= cost; myPay = newPay;
+  myGarage = myGarage + " " + emoji + " " + name;
   document.getElementById("message").innerText = "You buy " + name + "! Now you earn ₦" + newPay + " per work!";
   update();
 }
