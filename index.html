@@ -12,14 +12,31 @@ button { background: #ffcc00; color: black; border: none; padding: 15px 25px; fo
 .bar { background: #ddd; height: 12px; border-radius: 10px; overflow: hidden; margin: 5px 0; }
 .fill { height: 100%; }
 .garage { font-size: 30px; background: #2a0055; padding: 10px; border-radius: 15px; margin-top: 10px; }
+#winScreen, #loseScreen { display: none; background: #ffcc00; color: black; padding: 30px; border-radius: 20px; margin: 20px 0; }
+#loseScreen { background: #ff3333; color: white; }
 </style>
 </head>
 <body>
 <h1>🔥 HUSTLEVERSE 🔥</h1>
 <p>Welcome JATO! | Rank: <b id="rank">Street Boy</b></p>
 
+<div id="winScreen">
+<h1>👑 YOU WIN! 👑</h1>
+<p>You bought the Mansion! You are now a BILLIONAIRE!</p>
+<p>Final Money: <b id="winMoney"></b></p>
+<button onclick="resetGame()">🔄 PLAY AGAIN</button>
+</div>
+
+<div id="loseScreen">
+<h1>💀 GAME OVER 💀</h1>
+<p>You were too hungry and too tired. You collapsed on the street.</p>
+<p>Do not let Hunger stay at 100 and Energy go to 0.</p>
+<button onclick="resetGame()">🔄 TRY AGAIN</button>
+</div>
+
+<div id="gameArea">
 <div class="char" id="char">🚶</div>
-<p id="charText">Street Boy dey waka...</p>
+<p id="charText">Street Boy is walking...</p>
 <div class="garage">🏠 My Garage: <span id="garage">Nothing yet</span></div>
 
 <div class="box">
@@ -46,6 +63,8 @@ button { background: #ffcc00; color: black; border: none; padding: 15px 25px; fo
 <button onclick="buyItem('House',500000,50000,'🏠')" style="background:white;">🏠 House - ₦500,000<br><small>Pay: ₦50,000</small></button><br>
 <button onclick="buyItem('Mansion',2000000,150000,'👑')" style="background:#ffcc00;">👑 Mansion - ₦2,000,000<br><small>Pay: ₦150,000 - FINAL BOSS!</small></button>
 </div>
+<button onclick="resetGame()" style="background:#555; color:white; margin-top:15px;">🔄 RESET GAME</button>
+</div>
 
 <script>
 let myMoney = Number(localStorage.getItem("jato_money")) || 500;
@@ -53,6 +72,16 @@ let myHunger = Number(localStorage.getItem("jato_hunger")) || 50;
 let myEnergy = Number(localStorage.getItem("jato_energy")) || 100;
 let myPay = Number(localStorage.getItem("jato_pay")) || 2000;
 let myGarage = localStorage.getItem("jato_garage") || "";
+
+// FIX: If garage is empty but pay shows you already bought items, rebuild garage
+if (myGarage === "" && myPay >= 4000) {
+  myGarage = "";
+  if (myPay >= 4000) myGarage += " 📱 Phone";
+  if (myPay >= 8000) myGarage += " 🛺 Keke";
+  if (myPay >= 20000) myGarage += " 🚗 Car";
+  if (myPay >= 50000) myGarage += " 🏠 House";
+  if (myPay >= 150000) myGarage += " 👑 Mansion";
+}
 
 function save() {
   localStorage.setItem("jato_money", myMoney);
@@ -70,19 +99,35 @@ function getRank() {
   return "🚶 Street Boy";
 }
 function updateChar() {
-  let char = "🚶"; let text = "Street Boy dey waka...";
-  if (myPay >= 150000) { char = "👑"; text = "BILLIONAIRE! Everybody dey hail you!"; }
-  else if (myPay >= 50000) { char = "🏠"; text = "Landlord! You don hammer!"; }
-  else if (myPay >= 20000) { char = "🚗"; text = "Big Man dey cruise!"; }
+  let char = "🚶"; let text = "Street Boy is walking...";
+  if (myPay >= 150000) { char = "👑"; text = "BILLIONAIRE! Everyone is hailing you!"; }
+  else if (myPay >= 50000) { char = "🏠"; text = "Landlord! You have made it!"; }
+  else if (myPay >= 20000) { char = "🚗"; text = "Big Man is cruising!"; }
   else if (myPay >= 8000) { char = "🛺"; text = "Keke rider! Hustler on wheels!"; }
   else if (myPay >= 4000) { char = "😎"; text = "Hustler with Phone! Sharp guy!"; }
-  if (myEnergy < 20) { char = "😴"; text = "You don tire... Go SLEEP!"; }
-  else if (myHunger >= 90) { char = "🤤"; text = "Hunger wan kill you! Go EAT!"; }
+  if (myEnergy < 20) { char = "😴"; text = "You are tired... Go to SLEEP!"; }
+  else if (myHunger >= 90) { char = "🤤"; text = "Hunger is killing you! Go and EAT!"; }
   document.getElementById("char").innerText = char;
   document.getElementById("charText").innerText = text;
   document.getElementById("garage").innerText = myGarage || "Nothing yet";
   document.getElementById("hungerBar").style.width = myHunger + "%";
   document.getElementById("energyBar").style.width = myEnergy + "%";
+}
+function checkEnd() {
+  // WIN
+  if (myPay >= 150000 && myGarage.includes("Mansion")) {
+    document.getElementById("gameArea").style.display = "none";
+    document.getElementById("winScreen").style.display = "block";
+    document.getElementById("winMoney").innerText = "₦" + myMoney;
+    return true;
+  }
+  // LOSE
+  if (myHunger >= 100 && myEnergy <= 0) {
+    document.getElementById("gameArea").style.display = "none";
+    document.getElementById("loseScreen").style.display = "block";
+    return true;
+  }
+  return false;
 }
 function update() {
   document.getElementById("money").innerText = "₦" + myMoney;
@@ -92,35 +137,41 @@ function update() {
   document.getElementById("rank").innerText = getRank();
   updateChar();
   save();
+  checkEnd();
 }
 function goWork() {
-  if (myEnergy < 20) { document.getElementById("message").innerText = "You tire! Go SLEEP!"; return; }
+  if (myEnergy < 20) { document.getElementById("message").innerText = "You are tired! Go to SLEEP!"; return; }
   myMoney += myPay; myHunger += 20; myEnergy -= 20;
   if (myHunger > 100) myHunger = 100;
-  document.getElementById("message").innerText = "You work! +₦" + myPay;
+  if (myEnergy < 0) myEnergy = 0;
+  document.getElementById("message").innerText = "You worked! +₦" + myPay;
   update();
 }
 function eatFood() {
-  if (myMoney < 1000) { document.getElementById("message").innerText = "No money! Go work!"; return; }
+  if (myMoney < 1000) { document.getElementById("message").innerText = "No money! Go and work!"; return; }
   myMoney -= 1000; myHunger -= 40;
   if (myHunger < 0) myHunger = 0;
-  document.getElementById("message").innerText = "You chop! Hunger reduce!";
+  document.getElementById("message").innerText = "You ate! Hunger reduced!";
   update();
 }
-function sleep() { myEnergy = 100; document.getElementById("message").innerText = "You sleep! Energy full!"; update(); }
+function sleep() { myEnergy = 100; document.getElementById("message").innerText = "You slept! Energy is full!"; update(); }
 function luckySpin() {
   let win = Math.floor(Math.random() * 10000);
   myMoney += win;
-  document.getElementById("message").innerText = "🎰 LUCKY SPIN! You win ₦" + win + "!";
+  document.getElementById("message").innerText = "🎰 LUCKY SPIN! You won ₦" + win + "!";
   update();
 }
 function buyItem(name, cost, newPay, emoji) {
-  if (myPay >= newPay) { document.getElementById("message").innerText = "You don buy " + name + " already!"; return; }
-  if (myMoney < cost) { document.getElementById("message").innerText = name + " na ₦" + cost + "! Hustle more!"; return; }
+  if (myPay >= newPay) { document.getElementById("message").innerText = "You already bought " + name + "!"; return; }
+  if (myMoney < cost) { document.getElementById("message").innerText = name + " is ₦" + cost + "! Hustle more!"; return; }
   myMoney -= cost; myPay = newPay;
   myGarage = myGarage + " " + emoji + " " + name;
-  document.getElementById("message").innerText = "You buy " + name + "! Now you earn ₦" + newPay + " per work!";
+  document.getElementById("message").innerText = "You bought " + name + "! Now you earn ₦" + newPay + " per work!";
   update();
+}
+function resetGame() {
+  localStorage.clear();
+  location.reload();
 }
 update();
 </script>
